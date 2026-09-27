@@ -16,7 +16,11 @@
     cursor: pointer;
     transition: background 0.15s, box-shadow 0.15s;
 }
-/* Keep clear of Boost's right-hand drawer (quiz navigation, blocks) when it's open. */
+/* Keep clear of Boost's "Open block drawer" button, which sits in the same corner... */
+body:has(.drawer-right-toggle) #scicalc-toggle-btn {
+    right: 80px;
+}
+/* ...and of the drawer itself (quiz navigation, blocks) when it's open. */
 body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     right: calc(315px + 24px);
 }
