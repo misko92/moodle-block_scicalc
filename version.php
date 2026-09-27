@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * version.php
+ * Version information for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026032300;
-$plugin->release   = '1.3.8';
-$plugin->component = 'block_scicalc';
-$plugin->requires  = 2022041900; // Moodle 4.0+
+$plugin->version   = 2026092700;          // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2026041000;          // Requires this Moodle version.
+$plugin->supported = [502, 502];          // Supported Moodle branch range.
+$plugin->component = 'block_scicalc';     // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * access.php
+ * Capabilities for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
@@ -25,22 +25,22 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    // Who can add this block to a page.
     'block/scicalc:addinstance' => [
-        'riskbitmask' => RISK_SPAM,
+        'riskbitmask'  => RISK_SPAM,
         'captype'      => 'write',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes'   => [
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
-    // Who can view the block content (the calculator itself).
     'block/scicalc:myaddinstance' => [
         'captype'      => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes'   => [
             'user' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'moodle/my:manageblocks',
     ],
 ];

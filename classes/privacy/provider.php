@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * provider.php
+ * Privacy provider for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
@@ -31,7 +31,6 @@ use core_privacy\local\metadata\null_provider;
  * Calculation history lives only in the user's browser localStorage.
  */
 class provider implements null_provider {
-
     /**
      * Returns the reason string key explaining why no data is stored.
      *

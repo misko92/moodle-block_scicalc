@@ -15,20 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * block_scicalc.php — Scientific Calculator block
+ * Scientific Calculator block.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * Scientific Calculator block class.
+ * Scientific Calculator block.
+ *
+ * The block itself shows nothing to students: it loads a floating calculator
+ * (block_scicalc/popup) onto the page. While editing, it shows a short note so
+ * teachers can still find, move and delete it.
  */
 class block_scicalc extends block_base {
-
     /**
      * Initialise the block.
      */
@@ -55,64 +56,41 @@ class block_scicalc extends block_base {
     }
 
     /**
-     * No per-instance configuration form.
+     * Load the calculator and return the (normally empty) block content.
      *
-     * @return bool
-     */
-    public function has_config(): bool {
-        return false;
-    }
-
-    /**
-     * Build and return the block content.
+     * Empty content keeps the block out of the page for everyone who isn't editing.
      *
      * @return stdClass|null
      */
     public function get_content(): ?stdClass {
+        global $USER;
+
         if ($this->content !== null) {
             return $this->content;
         }
 
-        // Load all error/UI strings into JS so the calculator can use them.
         $this->page->requires->strings_for_js([
+            'invalid_expression',
             'error_generic',
             'error_unknown_token',
             'error_misplaced_comma',
             'error_mismatched_parentheses',
             'error_zero_argument_function_call',
-            'error_invalid_token_flow',
             'error_unclosed_function_call',
-            'error_invalid_factorial',
             'error_negative_factorial',
             'error_non_integer_factorial',
             'error_factorial_overflow',
             'error_arity_mismatch',
             'error_unsupported_function',
             'error_stack_underflow',
-            'error_invalid_number',
             'error_unknown_identifier',
-            'error_unsupported_operator',
-            'error_unexpected_token',
             'error_invalid_expression',
             'error_non_finite_result',
-            'history_title',
-            'clear_history',
-            'invalid_expression',
         ], 'block_scicalc');
-
-        // popup.js requires calculator.js as an AMD dependency and calls
-        // calculator.init() itself after injecting the UI into the DOM.
-        // This guarantees correct load order — calculator.js always finds
-        // #calculator-area already present when it runs.
-        $this->page->requires->js_call_amd(
-            'block_scicalc/popup',
-            'init',
-            [$this->instance->id]
-        );
+        $this->page->requires->js_call_amd('block_scicalc/popup', 'init', [(int) $USER->id, (int) $this->instance->id]);
 
         $this->content = new stdClass();
-        $this->content->text = $this->page->get_renderer('core')
-            ->render_from_template('block_scicalc/content', []);
+        $this->content->text = $this->page->user_is_editing() ? get_string('editinghint', 'block_scicalc') : '';
         $this->content->footer = '';
 
         return $this->content;

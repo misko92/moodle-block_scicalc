@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * block_scicalc.php — language strings
+ * Language strings for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
@@ -24,45 +24,58 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Block metadata.
-$string['pluginname']             = 'Scientific Calculator';
-$string['scicalc:addinstance']    = 'Add a new Scientific Calculator block';
-$string['scicalc:myaddinstance']  = 'Add a Scientific Calculator block to My home';
-
-// Calculator UI.
-$string['calculator_title']  = 'Calculator';
-$string['calculator_help']   = 'Type an expression and press Enter or "=".<br>Supported:';
-$string['history_title']     = 'History';
-$string['clear_history']     = 'Clear history';
-$string['invalid_expression'] = 'Invalid expression';
-
-// Error messages (shown in the JS calculator).
-$string['error_generic']                     = 'Error evaluating the expression.';
-$string['error_unknown_token']               = 'Unknown token.';
-$string['error_misplaced_comma']             = 'Comma in an invalid position.';
-$string['error_mismatched_parentheses']      = 'Mismatched parentheses.';
-$string['error_zero_argument_function_call'] = 'Function call with no arguments.';
-$string['error_invalid_token_flow']          = 'Invalid token flow.';
-$string['error_unclosed_function_call']      = 'Unclosed function call.';
-$string['error_invalid_factorial']           = 'Invalid factorial.';
-$string['error_negative_factorial']          = 'Can\'t compute the factorial of a negative number.';
-$string['error_non_integer_factorial']       = 'Factorial is only defined for integers.';
-$string['error_factorial_overflow']          = 'Factorial exceeded the numeric limit.';
-$string['error_arity_mismatch']              = 'Invalid number of arguments.';
-$string['error_unsupported_function']        = 'Unsupported function.';
-$string['error_stack_underflow']             = 'A number or argument is missing. '
-    . 'E.g.: <code>+2</code>, <code>2*</code>, <code>2 + ( )</code>, <code>2 +</code>, '
-    . '<code>sin()</code> with no value, <code>pow(2)</code> missing the 2nd argument.';
-$string['error_invalid_number']              = 'Invalid number.';
-$string['error_unknown_identifier']          = 'Unknown identifier.';
-$string['error_unsupported_operator']        = 'Unsupported operator.';
-$string['error_unexpected_token']            = 'Unexpected token.';
-$string['error_invalid_expression']          = 'I couldn\'t calculate it because the expression is written '
+$string['calculator'] = 'Calculator';
+$string['clear_history'] = 'Clear history';
+$string['close'] = 'Close calculator';
+$string['display'] = 'Calculator display';
+$string['displayplaceholder'] = 'e.g. 6.02E23';
+$string['editinghint'] = 'Students see a floating Calculator button at the top right of this page. This note is only shown while editing.';
+$string['error_arity_mismatch'] = 'Invalid number of arguments.';
+$string['error_factorial_overflow'] = 'Factorial exceeded the numeric limit.';
+$string['error_generic'] = 'Error evaluating the expression.';
+$string['error_invalid_expression'] = 'I couldn\'t calculate it because the expression is written '
     . 'in a format the calculator doesn\'t recognize '
-    . '(check parentheses, signs, and names like <code>sin</code>/<code>sqrt</code>).';
-$string['error_non_finite_result']           = 'The result of this calculation was infinite or not a number (NaN). '
+    . '(check parentheses, signs, and names like <code>sin</code>/<code>sqrt</code>). '
+    . 'Put <code>*</code> between numbers and brackets, e.g. <code>2*(3+4)</code>.';
+$string['error_mismatched_parentheses'] = 'Mismatched parentheses.';
+$string['error_misplaced_comma'] = 'Comma in an invalid position.';
+$string['error_negative_factorial'] = 'Can\'t compute the factorial of a negative number.';
+$string['error_non_finite_result'] = 'The result of this calculation was infinite or not a number (NaN). '
     . 'Check that you are not dividing by zero or using something like the square root of a negative number.';
-
-// Privacy.
-$string['privacy:metadata'] = 'The Scientific Calculator block does not store any personal data. '
+$string['error_non_integer_factorial'] = 'Factorial is only defined for integers.';
+$string['error_stack_underflow'] = 'A number or argument is missing. '
+    . 'E.g.: <code>2*</code>, <code>2 + ( )</code>, <code>2 +</code>, '
+    . '<code>sin()</code> with no value, <code>pow(2)</code> missing the 2nd argument.';
+$string['error_unclosed_function_call'] = 'Unclosed function call.';
+$string['error_unknown_identifier'] = 'Unknown name. Use lower-case <code>e</code> for Euler\'s number and <code>E</code> only for powers of ten, e.g. <code>6.02E23</code>.';
+$string['error_unknown_token'] = 'Unknown symbol.';
+$string['error_unsupported_function'] = 'Unsupported function.';
+$string['error_zero_argument_function_call'] = 'Function call with no arguments.';
+$string['history_title'] = 'History';
+$string['invalid_expression'] = 'Invalid expression';
+$string['key_abs'] = 'Absolute value';
+$string['key_ans'] = 'Previous answer';
+$string['key_backspace'] = 'Delete last character';
+$string['key_clear'] = 'Clear';
+$string['key_divide'] = 'Divide';
+$string['key_epower'] = 'e to the power of';
+$string['key_equals'] = 'Equals';
+$string['key_exponent'] = 'Times ten to the power of';
+$string['key_ln'] = 'Natural logarithm';
+$string['key_log'] = 'Logarithm base 10';
+$string['key_minus'] = 'Minus';
+$string['key_multiply'] = 'Multiply';
+$string['key_negate'] = 'Change sign';
+$string['key_nthroot'] = 'Nth root';
+$string['key_plus'] = 'Plus';
+$string['key_point'] = 'Decimal point';
+$string['key_power'] = 'To the power of';
+$string['key_reciprocal'] = 'Reciprocal';
+$string['key_sqrt'] = 'Square root';
+$string['key_square'] = 'Squared';
+$string['key_tenpower'] = 'Ten to the power of';
+$string['pluginname'] = 'Scientific Calculator';
+$string['privacy:metadata'] = 'The Scientific Calculator block does not store any personal data on the server. '
     . 'Calculation history is kept in the browser\'s localStorage only.';
+$string['scicalc:addinstance'] = 'Add a new Scientific Calculator block';
+$string['scicalc:myaddinstance'] = 'Add a Scientific Calculator block to My home';

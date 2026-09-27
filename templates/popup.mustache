@@ -1,0 +1,71 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_scicalc/popup
+
+    Floating toggle button and calculator dialog. Rendered by block_scicalc/popup
+    and appended to document.body.
+
+    Context variables required for this template:
+    * buttons - keypad buttons in grid order
+      * label - text on the button
+      * action - what the button does (insert, wrap, ans, negate, backspace, clear, equals)
+      * value - text inserted for insert/wrap buttons
+      * style - colour variant (num, op, func, warning, danger, primary)
+      * arialabel - optional accessible name when the label is a symbol
+      * tall - optional, spans three grid rows (the = key)
+
+    Example context (json):
+    {
+        "buttons": [
+            {"label": "7", "action": "insert", "value": "7", "style": "num"},
+            {"label": "LOG", "action": "wrap", "value": "log()", "style": "func", "arialabel": "log"},
+            {"label": "=", "action": "equals", "value": "", "style": "primary"}
+        ]
+    }
+}}
+<button type="button" id="scicalc-toggle-btn" aria-expanded="false" aria-controls="scicalc-popup">
+    {{> block_scicalc/icon }}{{#str}} calculator, block_scicalc {{/str}}
+</button>
+<div id="scicalc-popup" role="dialog" aria-labelledby="scicalc-title" hidden>
+    <div id="scicalc-drag-handle">
+        <span id="scicalc-title">{{> block_scicalc/icon }}{{#str}} pluginname, block_scicalc {{/str}}</span>
+        <button type="button" id="scicalc-close-btn" aria-label="{{#str}} close, block_scicalc {{/str}}">&times;</button>
+    </div>
+    <div id="scicalc-popup-body">
+        <div class="scicalc-input-row">
+            <label for="scicalc-display" class="visually-hidden">{{#str}} display, block_scicalc {{/str}}</label>
+            <input type="text" id="scicalc-display"
+                   autocomplete="off" spellcheck="false" inputmode="none"
+                   placeholder="{{#str}} displayplaceholder, block_scicalc {{/str}}">
+        </div>
+        <div id="scicalc-error" class="scicalc-error" role="alert" hidden></div>
+        <div class="scicalc-grid">
+            {{#buttons}}
+            <button type="button" class="scicalc-btn scicalc-btn-{{style}}{{#tall}} scicalc-btn-tall{{/tall}}"
+                    data-action="{{action}}" data-value="{{value}}"{{#arialabel}} aria-label="{{.}}"{{/arialabel}}>{{label}}</button>
+            {{/buttons}}
+        </div>
+        <div class="scicalc-history-header">
+            <span id="scicalc-history-title">{{#str}} history_title, block_scicalc {{/str}}</span>
+            <button type="button" id="scicalc-clear-history" class="scicalc-clear-history">
+                {{#str}} clear_history, block_scicalc {{/str}}
+            </button>
+        </div>
+        <div id="scicalc-history" class="list-group list-group-flush" aria-labelledby="scicalc-history-title"></div>
+    </div>
+</div>

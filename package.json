@@ -1,0 +1,33 @@
+{
+    "name": "moodle-block_scicalc",
+    "version": "1.0.0",
+    "description": "Jest test harness for the block_scicalc AMD modules.",
+    "private": true,
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "test": "jest"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "testMatch": [
+            "<rootDir>/tests/jest/**/*.test.js"
+        ],
+        "transform": {
+            "^.+\\.js$": "babel-jest"
+        },
+        "moduleNameMapper": {
+            "^block_scicalc/(.*)$": "<rootDir>/amd/src/$1"
+        }
+    },
+    "babel": {
+        "presets": [
+            "@babel/preset-env"
+        ]
+    },
+    "devDependencies": {
+        "@babel/core": "^8.0.1",
+        "@babel/preset-env": "^8.0.2",
+        "babel-jest": "^30.5.0",
+        "jest": "^30.5.0"
+    }
+}
