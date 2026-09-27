@@ -94,6 +94,30 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     text-align: right;
 }
 
+/* Cursor keys either side of the display */
+.scicalc-cursor {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: #e9ecef;
+    color: #212529;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+.scicalc-cursor:hover {
+    background: #dee2e6;
+}
+.scicalc-cursor:active {
+    filter: brightness(0.88);
+}
+
 /* Error */
 .scicalc-error {
     background: #f8d7da;

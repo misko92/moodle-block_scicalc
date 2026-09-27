@@ -168,6 +168,29 @@ Feature: Scientific calculator popup
     And I press "Equals"
     And the field "Calculator display" matches value "3.60205999132796"
 
+  Scenario: Cursor keys move through the expression for editing
+    Given I am on the "Course 1" course page logged in as student1
+    And I click on "Calculator" "button"
+    And I set the field "Calculator display" to "log(100)"
+    # Five presses: back over ")", "0", "0", "1", then past "log(" in one step.
+    When I press "Move cursor left"
+    And I press "Move cursor left"
+    And I press "Move cursor left"
+    And I press "Move cursor left"
+    And I press "Move cursor left"
+    And I click on "[data-action='insert'][data-value='2']" "css_element"
+    And I press "Multiply"
+    Then the field "Calculator display" matches value "2*log(100)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "4"
+    # Moving back into an answer edits it rather than starting afresh.
+    And I press "Move cursor left"
+    And I click on "[data-action='insert'][data-value='5']" "css_element"
+    And the field "Calculator display" matches value "54"
+    And I press "Move cursor right"
+    And I click on "[data-action='insert'][data-value='1']" "css_element"
+    And the field "Calculator display" matches value "541"
+
   Scenario: Invalid expressions show an explanation
     Given I am on the "Course 1" course page logged in as student1
     And I click on "Calculator" "button"

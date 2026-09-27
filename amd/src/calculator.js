@@ -23,7 +23,7 @@
 
 import {evaluate, formatResult, isSuperscript} from 'block_scicalc/evaluator';
 import {
-    type, startExponent, backspace, isFillable, fillFunction, replacesFill, toggleSign,
+    type, startExponent, backspace, isFillable, fillFunction, replacesFill, toggleSign, moveCursor,
 } from 'block_scicalc/editor';
 
 const MAX_HISTORY_ITEMS = 50;
@@ -334,6 +334,24 @@ export const init = (root, historyKey) => {
         display.focus();
     });
 
+    /**
+     * Move the cursor. Moving into an expression means editing it, so an answer on the display
+     * stops being one (typing a digit inserts it instead of starting afresh), and a pending ^
+     * or filled-in answer is accepted as it is.
+     *
+     * @param {number} direction -1 for left, 1 for right.
+     */
+    const move = (direction) => {
+        fill = null;
+        showingResult = false;
+        setState(moveCursor(getState(), direction));
+    };
+
+    root.querySelectorAll('[data-cursor]').forEach((btn) => btn.addEventListener('click', () => {
+        move(btn.dataset.cursor === 'left' ? -1 : 1);
+        display.focus();
+    }));
+
     // Typing goes through the same rules as the keypad, so ^ then 3 gives ³.
     display.addEventListener('keydown', (ev) => {
         if (ev.ctrlKey || ev.metaKey || ev.altKey) {
@@ -347,6 +365,11 @@ export const init = (root, historyKey) => {
             ev.preventDefault();
             setState({...getState(), pending: false});
             calculate();
+            return;
+        }
+        if ((ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') && !ev.shiftKey) {
+            ev.preventDefault();
+            move(ev.key === 'ArrowLeft' ? -1 : 1);
             return;
         }
         if (ev.key === 'Backspace') {
@@ -373,7 +396,9 @@ export const init = (root, historyKey) => {
         setState(ev.key === '^' ? startExponent(getState()) : type(getState(), ev.key));
     });
     display.addEventListener('click', () => {
+        // Tapping into the display to place the cursor means editing, like the arrow keys.
         fill = null;
+        showingResult = false;
         setState({...getState(), pending: false});
     });
 

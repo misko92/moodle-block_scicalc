@@ -27,6 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 $string['calculator'] = 'Calculator';
 $string['clear_history'] = 'Clear history';
 $string['close'] = 'Close calculator';
+$string['cursorleft'] = 'Move cursor left';
+$string['cursorright'] = 'Move cursor right';
 $string['display'] = 'Calculator display';
 $string['displayplaceholder'] = 'e.g. 6.02E23';
 $string['editinghint'] = 'Students see a floating Calculator button at the top right of this page, and during every quiz attempt in this course. This note is only shown while editing.';

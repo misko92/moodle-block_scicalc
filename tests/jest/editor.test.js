@@ -21,7 +21,7 @@
  */
 
 import {
-    type, startExponent, backspace, inExponent, isFillable, fillFunction, replacesFill, toggleSign,
+    type, startExponent, backspace, inExponent, isFillable, fillFunction, replacesFill, toggleSign, moveCursor,
 } from '../../amd/src/editor';
 import {evaluate, formatResult} from '../../amd/src/evaluator';
 
@@ -263,5 +263,37 @@ describe('+/− flips the sign of the term at the cursor', () => {
     test('pH = −log[H+]', () => {
         const state = toggleSign(at('log(.0002)|'));
         expect(formatResult(evaluate(state.value))).toBe('3.69897000433602');
+    });
+});
+
+describe('cursor keys', () => {
+    const at = (text) => {
+        const start = text.indexOf('[') >= 0 ? text.indexOf('[') : text.indexOf('|');
+        const end = text.indexOf(']') >= 0 ? text.indexOf(']') - 1 : start;
+        return {value: text.replace(/[|[\]]/g, ''), start, end, pending: true};
+    };
+
+    test.each([
+        ['12|+3', -1, '1|2+3'],
+        ['12|+3', 1, '12+|3'],
+        ['|12', -1, '|12'],
+        ['12|', 1, '12|'],
+        // A function name and its bracket are one step.
+        ['log(|100)', -1, '|log(100)'],
+        ['|log(100)', 1, 'log(|100)'],
+        ['2*√(|9)', -1, '2*|√(9)'],
+        ['2*|ln(5)', 1, '2*ln(|5)'],
+        ['2*pi|', -1, '2*|pi'],
+        // Superscripts, E-notation and closing brackets are single steps.
+        ['10⁻⁴|', -1, '10⁻|⁴'],
+        ['1E|6', -1, '1|E6'],
+        ['log(100)|', -1, 'log(100|)'],
+        // A selection collapses to its start or end.
+        ['1[23]4', -1, '1|234'],
+        ['1[23]4', 1, '123|4'],
+    ])('%s moved %i → %s', (before, direction, after) => {
+        const state = moveCursor(at(before), direction);
+        expect(state.value.slice(0, state.start) + '|' + state.value.slice(state.end)).toBe(after);
+        expect(state.pending).toBe(false);
     });
 });

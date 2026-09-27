@@ -327,3 +327,27 @@ export const toggleSign = (state) => {
     }
     return edit(at, 0, '-');
 };
+
+/**
+ * The ◀ ▶ keys: move the cursor one character, or past a whole function name and its
+ * bracket (log(, √() in one step, since the cursor is no use inside one. A selection
+ * collapses to its start or end instead.
+ *
+ * @param {Object} state
+ * @param {number} direction -1 for left, 1 for right.
+ * @returns {Object}
+ */
+export const moveCursor = (state, direction) => {
+    const {value, start, end} = state;
+    let pos;
+    if (start !== end) {
+        pos = direction < 0 ? start : end;
+    } else if (direction < 0) {
+        const name = /[A-Za-z√]+\(?$/.exec(value.slice(0, start));
+        pos = Math.max(0, start - (name ? name[0].length : 1));
+    } else {
+        const name = /^[A-Za-z√]+\(?/.exec(value.slice(end));
+        pos = Math.min(value.length, end + (name ? name[0].length : 1));
+    }
+    return {value, start: pos, end: pos, pending: false};
+};

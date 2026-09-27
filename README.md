@@ -24,6 +24,9 @@ EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
   function, with the minus outside it (`log(.0002)` → `−log(.0002)`, for pH). In an
   exponent it flips the exponent, as on a scientific calculator: **EE** then **+/−**
   gives `1E−6`. On an answer it negates the whole answer.
+- **◀ ▶** either side of the display move the cursor for editing (useful on iPads, where
+  there's no on-screen keyboard); a function name like `log(` is one step. The
+  keyboard's arrow keys do the same.
 - A negative number raised to a power is bracketed as it's typed: −3 then x² shows
   `(−3)²` = 9, which is what students almost always mean. A minus that subtracts is
   left alone (`5−3²` = −4). Otherwise expressions follow normal maths precedence.
