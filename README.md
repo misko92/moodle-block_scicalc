@@ -6,6 +6,11 @@ EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
 
 - The block itself is invisible to students; it adds a **Calculator** button below
   the navbar. Teachers see a short note in the block while editing.
+- **Quizzes:** add the block to a course once and every quiz attempt in that course
+  gets the calculator — even with "Show blocks during quiz attempts" off. Each quiz
+  has a **Show calculator during attempts** checkbox (under *Scientific Calculator*
+  in its settings) to turn it off for no-calculator tests. That setting isn't
+  included in course backups, so it resets to "on" after a restore or duplicate.
 - Expressions follow normal maths precedence (`-2^2 = -4`, `2^-3 = 0.125`).
   Trig functions use degrees. Use `*` for multiplication; `E` is only the
   exponent marker (`6.02E23`), lower-case `e` is Euler's number.

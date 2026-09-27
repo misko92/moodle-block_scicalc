@@ -16,6 +16,10 @@
     cursor: pointer;
     transition: background 0.15s, box-shadow 0.15s;
 }
+/* Keep clear of Boost's right-hand drawer (quiz navigation, blocks) when it's open. */
+body:has(#page.show-drawer-right) #scicalc-toggle-btn {
+    right: calc(315px + 24px);
+}
 #scicalc-toggle-btn:hover,
 #scicalc-toggle-btn:focus-visible {
     background: #2a2a2a;

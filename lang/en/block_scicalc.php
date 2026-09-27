@@ -29,7 +29,7 @@ $string['clear_history'] = 'Clear history';
 $string['close'] = 'Close calculator';
 $string['display'] = 'Calculator display';
 $string['displayplaceholder'] = 'e.g. 6.02E23';
-$string['editinghint'] = 'Students see a floating Calculator button at the top right of this page. This note is only shown while editing.';
+$string['editinghint'] = 'Students see a floating Calculator button at the top right of this page, and during every quiz attempt in this course. This note is only shown while editing.';
 $string['error_arity_mismatch'] = 'Invalid number of arguments.';
 $string['error_factorial_overflow'] = 'Factorial exceeded the numeric limit.';
 $string['error_generic'] = 'Error evaluating the expression.';
@@ -77,5 +77,7 @@ $string['key_tenpower'] = 'Ten to the power of';
 $string['pluginname'] = 'Scientific Calculator';
 $string['privacy:metadata'] = 'The Scientific Calculator block does not store any personal data on the server. '
     . 'Calculation history is kept in the browser\'s localStorage only.';
+$string['quizsetting'] = 'Show calculator during attempts';
+$string['quizsetting_help'] = 'Students get a floating scientific calculator while attempting this quiz, as long as the Scientific Calculator block has been added to this course. Untick this for quizzes where calculators aren\'t allowed.';
 $string['scicalc:addinstance'] = 'Add a new Scientific Calculator block';
 $string['scicalc:myaddinstance'] = 'Add a Scientific Calculator block to My home';

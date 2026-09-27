@@ -37,6 +37,9 @@ import {init as initCalculator} from 'block_scicalc/calculator';
 
 const STATE_KEY = 'block_scicalc_popup_v1';
 
+/** Both the block and the quiz hook may ask for the calculator; only the first call counts. */
+let initialised = false;
+
 /**
  * Keypad in grid order: [label, action, value, style, aria-label string key].
  * "wrap" inserts value and leaves the cursor before its last character.
@@ -86,8 +89,9 @@ const loadState = () => {
     } catch (e) {
         // Fall through to the default.
     }
-    // Top right, just below the toggle button (which sits below the navbar).
-    return {open: false, x: Math.max(10, window.innerWidth - 400), y: 124};
+    // Top right, just below the toggle button (which sits below the navbar), left of an open right drawer.
+    const drawer = document.querySelector('#page.show-drawer-right') ? 315 : 0;
+    return {open: false, x: Math.max(10, window.innerWidth - 400 - drawer), y: 124};
 };
 
 const saveState = (state) => {
@@ -138,9 +142,10 @@ const buildContext = async() => {
  * @param {number} instanceid Block instance id.
  */
 export const init = async(userid, instanceid) => {
-    if (document.getElementById('scicalc-popup')) {
+    if (initialised) {
         return;
     }
+    initialised = true;
 
     const {html, js} = await Templates.renderForPromise('block_scicalc/popup', await buildContext());
     Templates.appendNodeContents(document.body, html, js);

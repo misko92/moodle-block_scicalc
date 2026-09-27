@@ -22,12 +22,15 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_scicalc\local\loader;
+
 /**
  * Scientific Calculator block.
  *
  * The block itself shows nothing to students: it loads a floating calculator
  * (block_scicalc/popup) onto the page. While editing, it shows a short note so
- * teachers can still find, move and delete it.
+ * teachers can still find, move and delete it. Quiz attempts in a course with this
+ * block get the calculator too (see \block_scicalc\hook_callbacks).
  */
 class block_scicalc extends block_base {
     /**
@@ -63,31 +66,11 @@ class block_scicalc extends block_base {
      * @return stdClass|null
      */
     public function get_content(): ?stdClass {
-        global $USER;
-
         if ($this->content !== null) {
             return $this->content;
         }
 
-        $this->page->requires->strings_for_js([
-            'invalid_expression',
-            'error_generic',
-            'error_unknown_token',
-            'error_misplaced_comma',
-            'error_mismatched_parentheses',
-            'error_zero_argument_function_call',
-            'error_unclosed_function_call',
-            'error_negative_factorial',
-            'error_non_integer_factorial',
-            'error_factorial_overflow',
-            'error_arity_mismatch',
-            'error_unsupported_function',
-            'error_stack_underflow',
-            'error_unknown_identifier',
-            'error_invalid_expression',
-            'error_non_finite_result',
-        ], 'block_scicalc');
-        $this->page->requires->js_call_amd('block_scicalc/popup', 'init', [(int) $USER->id, (int) $this->instance->id]);
+        loader::require_calculator($this->page, (int) $this->instance->id);
 
         $this->content = new stdClass();
         $this->content->text = $this->page->user_is_editing() ? get_string('editinghint', 'block_scicalc') : '';

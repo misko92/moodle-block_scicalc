@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for block_scicalc.
+ * Hook callbacks for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
@@ -24,8 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026092702;          // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2026041000;          // Requires this Moodle version.
-$plugin->supported = [502, 502];          // Supported Moodle branch range.
-$plugin->component = 'block_scicalc';     // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => [\block_scicalc\hook_callbacks::class, 'before_footer_html_generation'],
+    ],
+];

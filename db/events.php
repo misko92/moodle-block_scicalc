@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for block_scicalc.
+ * Event observers for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
@@ -24,8 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026092702;          // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2026041000;          // Requires this Moodle version.
-$plugin->supported = [502, 502];          // Supported Moodle branch range.
-$plugin->component = 'block_scicalc';     // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+$observers = [
+    [
+        'eventname' => '\core\event\course_module_deleted',
+        'callback' => '\block_scicalc\observer::course_module_deleted',
+    ],
+];

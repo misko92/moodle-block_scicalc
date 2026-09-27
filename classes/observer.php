@@ -14,18 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace block_scicalc;
+
+use core\event\course_module_deleted;
+
 /**
- * Version information for block_scicalc.
+ * Event observers for block_scicalc.
  *
  * @package   block_scicalc
  * @copyright 2026 Eduardo Kraus {@link https://eduardokraus.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2026092702;          // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2026041000;          // Requires this Moodle version.
-$plugin->supported = [502, 502];          // Supported Moodle branch range.
-$plugin->component = 'block_scicalc';     // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+class observer {
+    /**
+     * Forget the calculator setting of a deleted quiz.
+     *
+     * @param course_module_deleted $event
+     */
+    public static function course_module_deleted(course_module_deleted $event): void {
+        global $DB;
+        $DB->delete_records('block_scicalc_quizoff', ['cmid' => $event->contextinstanceid]);
+    }
+}
