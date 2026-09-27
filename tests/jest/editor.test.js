@@ -96,11 +96,40 @@ describe('typing exponents', () => {
     });
 });
 
+describe('negative numbers raised to a power are bracketed', () => {
+    test.each([
+        [['-', '3', '²'], '(-3)²|'],
+        [['−', '3', '²'], '(−3)²|'],
+        [['-', '3', '^', '2'], '(-3)²|'],
+        [['-', '2', '.', '5', '²'], '(-2.5)²|'],
+        [['-', '3', '^', '-', '2'], '(-3)⁻²|'],
+        [['2', '*', '-', '3', '²'], '2*(-3)²|'],
+        [['5', '-', '-', '3', '²'], '5-(-3)²|'],
+        [['(', '-', '3', '²'], '((-3)²|'],
+        [['-', '6', '.', '0', '2', 'E', '2', '3', '²'], '(-6.02E23)²|'],
+        // Not negative numbers: subtraction, E-notation, brackets the student typed.
+        [['5', '-', '3', '²'], '5-3²|'],
+        [['1', 'E', '-', '3', '²'], '1E-3²|'],
+        [['(', '-', '3', ')', '²'], '(-3)²|'],
+        [['2', '³', '-', '3', '²'], '2³-3²|'],
+    ])('%j → %s', (keys, expected) => {
+        expect(shown(press(keys))).toBe(expected);
+    });
+
+    test('a negative result is bracketed before squaring it', () => {
+        expect(shown(type({value: '-81', start: 3, end: 3, pending: false}, '²'))).toBe('(-81)²|');
+    });
+});
+
 describe('typed expressions evaluate as expected', () => {
     test.each([
         [['1', '0', '^', '-', '4', '.', '2'], '0.0000630957344480193'],
         [['2', '^', '3', '*', '4'], '32'],
-        [['-', '2', '²'], '-4'],
+        [['-', '2', '²'], '4'],
+        [['-', '3', '^', '2'], '9'],
+        [['5', '-', '3', '²'], '-4'],
+        [['2', '*', '-', '3', '²'], '18'],
+        [['-', '3', '^', '3'], '-27'],
         [['6', '.', '0', '2', 'E', '2', '3', '*', '2'], '1.204E24'],
     ])('%j = %s', (keys, expected) => {
         expect(formatResult(evaluate(press(keys).value))).toBe(expected);

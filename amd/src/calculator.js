@@ -151,17 +151,14 @@ export const init = (root, historyKey) => {
 
     /**
      * Before a key is applied to a displayed result: keep the result for operator keys
-     * (bracketing a negative one before a power, so -81 then x² is (-81)²), else clear it.
+     * (the editor brackets a negative one before a power), else clear it.
      *
      * @param {boolean} continues
-     * @param {boolean} power Whether the key raises the result to a power.
      */
-    const leaveResult = (continues, power) => {
+    const leaveResult = (continues) => {
         showingResult = false;
         if (!continues) {
             setValue('');
-        } else if (power && display.value.startsWith('-')) {
-            setValue('(' + display.value + ')');
         }
     };
 
@@ -229,7 +226,7 @@ export const init = (root, historyKey) => {
         if (showingResult && ['insert', 'wrap', 'ans', 'power'].includes(action)) {
             // The bare ^ key continues from a result; 10ˣ and eˣ start a new calculation.
             const continues = action === 'power' ? value === '' : chains(value);
-            leaveResult(continues, value === '' || isSuperscript(value));
+            leaveResult(continues);
         }
         if (action !== 'equals') {
             showingResult = false;
@@ -302,7 +299,7 @@ export const init = (root, historyKey) => {
         ev.preventDefault();
         showError('');
         if (showingResult) {
-            leaveResult(chains(ev.key), ev.key === '^');
+            leaveResult(chains(ev.key));
         }
         setState(ev.key === '^' ? startExponent(getState()) : type(getState(), ev.key));
     });

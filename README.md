@@ -15,7 +15,9 @@ EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
   e.g. `2³` or `10⁻⁴`; **10ˣ** and **eˣ** start an exponent straight away. Decimal
   or fraction exponents fall back to caret form: a `.` turns `10⁻⁴` into `10^(-4.)`,
   and ⁿ√ gives `^(1/ )`. Typed `^` on a keyboard works the same way.
-- Expressions follow normal maths precedence (`-2² = -4`, `2^-3 = 0.125`).
+- A negative number raised to a power is bracketed as it's typed: −3 then x² shows
+  `(−3)²` = 9, which is what students almost always mean. A minus that subtracts is
+  left alone (`5−3²` = −4). Otherwise expressions follow normal maths precedence.
   Trig functions use degrees. Use `*` for multiplication; `E` is only the
   exponent marker (`6.02E23`), lower-case `e` is Euler's number.
 - Calculation history lasts for the current login session only (kept in the

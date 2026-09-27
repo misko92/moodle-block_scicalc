@@ -21,13 +21,18 @@ Feature: Scientific calculator popup
       | scicalc   | Course       | C1        | course-view-*   | side-pre      |
 
   @accessibility
-  Scenario: Unary minus binds looser than powers
+  Scenario: A negative number raised to a power is bracketed
     Given I am on the "Course 1" course page logged in as student1
     When I click on "Calculator" "button"
     And I set the field "Calculator display" to "-2^2"
+    Then the field "Calculator display" matches value "(-2)²"
     And I press "Equals"
-    Then the field "Calculator display" matches value "-4"
-    And I should see "-2²" in the "#scicalc-history" "css_element"
+    And the field "Calculator display" matches value "4"
+    And I should see "(-2)²" in the "#scicalc-history" "css_element"
+    And I press "CLR"
+    And I set the field "Calculator display" to "5-3^2"
+    And I press "Equals"
+    And the field "Calculator display" matches value "-4"
     And the page should meet accessibility standards with "wcag2a, wcag2aa, wcag21a, wcag21aa" extra tests
 
   Scenario: Operator keys continue from a result, number keys start afresh

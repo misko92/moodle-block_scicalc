@@ -22,6 +22,10 @@
  * in superscript falls back to caret form: a decimal point turns 10⁻⁴ into 10^(-4.),
  * "(" gives ^(, and any other key after a bare ^ just inserts the ^.
  *
+ * Raising a negative number to a power brackets it first, so −3 then x² shows (−3)² = 9
+ * rather than −3² = −9 (the minus applying after the power), which is rarely what a
+ * student means. A minus that subtracts (5−3²) is left alone.
+ *
  * State: {value: string, start: number, end: number, pending: boolean}, where start/end
  * are the display's selection.
  *
@@ -48,6 +52,29 @@ const replaceSelection = (state, text, cursorBack = 0) => {
         end: pos,
         pending: false,
     };
+};
+
+/** A negative number at the cursor whose minus is a sign, not a subtraction: -3, 2*-0.5, (−6.02E23. */
+const NEGATIVE_BASE = /(^|[-−+*/×÷^(,%])([-−](?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)$/;
+
+/**
+ * Put brackets round a negative number just before the cursor, ready to raise it to a power.
+ *
+ * @param {Object} state
+ * @returns {Object}
+ */
+const bracketNegativeBase = (state) => {
+    if (state.start !== state.end) {
+        return state;
+    }
+    const before = state.value.slice(0, state.start);
+    const match = NEGATIVE_BASE.exec(before);
+    if (!match) {
+        return state;
+    }
+    const at = before.length - match[2].length;
+    const value = before.slice(0, at) + '(' + match[2] + ')' + state.value.slice(state.start);
+    return {...state, value, start: state.start + 2, end: state.start + 2};
 };
 
 /**
@@ -95,7 +122,7 @@ const decimalExponent = (state) => {
  */
 export const type = (state, text, cursorBack = 0) => {
     if (isSuperscript(text)) {
-        return replaceSelection(state, text);
+        return replaceSelection(bracketNegativeBase(state), text);
     }
     if (text.length === 1 && inExponent(state)) {
         if (text >= '0' && text <= '9') {
@@ -120,7 +147,7 @@ export const type = (state, text, cursorBack = 0) => {
  * @param {Object} state
  * @returns {Object}
  */
-export const startExponent = (state) => ({...state, pending: true});
+export const startExponent = (state) => ({...bracketNegativeBase(state), pending: true});
 
 /**
  * Delete the selection or the character before the cursor; cancels a pending ^ first.
