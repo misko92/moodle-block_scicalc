@@ -41,9 +41,8 @@ class hook_callbacks {
         if ($PAGE->pagetype !== 'mod-quiz-attempt' || !$PAGE->cm || during_initial_install()) {
             return;
         }
-        $instanceid = loader::find_block($PAGE->context);
-        if ($instanceid !== null) {
-            loader::require_calculator($PAGE, $instanceid);
+        if (loader::find_block($PAGE->context) !== null) {
+            loader::require_calculator($PAGE);
         }
     }
 }

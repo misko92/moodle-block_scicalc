@@ -11,11 +11,16 @@ EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
   has a **Show calculator during attempts** checkbox (under *Scientific Calculator*
   in its settings) to turn it off for no-calculator tests. That setting isn't
   included in course backups, so it resets to "on" after a restore or duplicate.
-- Expressions follow normal maths precedence (`-2^2 = -4`, `2^-3 = 0.125`).
+- Exponents are typed as superscripts: press **^** (it lights up), then the digits,
+  e.g. `2³` or `10⁻⁴`; **10ˣ** and **eˣ** start an exponent straight away. Decimal
+  or fraction exponents fall back to caret form: a `.` turns `10⁻⁴` into `10^(-4.)`,
+  and ⁿ√ gives `^(1/ )`. Typed `^` on a keyboard works the same way.
+- Expressions follow normal maths precedence (`-2² = -4`, `2^-3 = 0.125`).
   Trig functions use degrees. Use `*` for multiplication; `E` is only the
   exponent marker (`6.02E23`), lower-case `e` is Euler's number.
-- Calculation history is stored per user in the browser's localStorage; nothing
-  is stored on the server.
+- Calculation history lasts for the current login session only (kept in the
+  browser's localStorage across pages and tabs). Logging in again — or another
+  student logging in on the same computer — clears it. Nothing is stored on the server.
 
 Requires Moodle 5.2.
 

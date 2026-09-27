@@ -27,7 +27,7 @@ Feature: Scientific calculator popup
     And I set the field "Calculator display" to "-2^2"
     And I press "Equals"
     Then the field "Calculator display" matches value "-4"
-    And I should see "-2^2" in the "#scicalc-history" "css_element"
+    And I should see "-2²" in the "#scicalc-history" "css_element"
     And the page should meet accessibility standards with "wcag2a, wcag2aa, wcag21a, wcag21aa" extra tests
 
   Scenario: Operator keys continue from a result, number keys start afresh
@@ -44,6 +44,44 @@ Feature: Scientific calculator popup
     And the field "Calculator display" matches value "-81"
     And I press "5"
     And the field "Calculator display" matches value "5"
+
+  Scenario: Exponents are shown as superscripts
+    Given I am on the "Course 1" course page logged in as student1
+    And I click on "Calculator" "button"
+    When I press "Ten to the power of"
+    And I press "Minus"
+    And I press "4"
+    Then the field "Calculator display" matches value "10⁻⁴"
+    And I press "Equals"
+    And the field "Calculator display" matches value "0.0001"
+    And I press "Ten to the power of"
+    And I press "Minus"
+    And I press "4"
+    And I press "Decimal point"
+    And I press "2"
+    And the field "Calculator display" matches value "10^(-4.2)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "0.0000630957344480193"
+    And I press "Squared"
+    And the field "Calculator display" matches value "0.0000630957344480193²"
+    And I press "CLR"
+    And I set the field "Calculator display" to "2^3*4"
+    And the field "Calculator display" matches value "2³*4"
+    And I press "Equals"
+    And the field "Calculator display" matches value "32"
+
+  Scenario: History lasts for the login session only
+    Given I am on the "Course 1" course page logged in as student1
+    And I click on "Calculator" "button"
+    And I set the field "Calculator display" to "12*3"
+    And I press "Equals"
+    And I should see "12*3" in the "#scicalc-history" "css_element"
+    When I reload the page
+    Then I should see "12*3" in the "#scicalc-history" "css_element"
+    And I log out
+    And I am on the "Course 1" course page logged in as student1
+    And I click on "Calculator" "button"
+    And I should not see "12*3" in the "#scicalc-history" "css_element"
 
   Scenario: Invalid expressions show an explanation
     Given I am on the "Course 1" course page logged in as student1

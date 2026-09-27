@@ -21,9 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {evaluate, formatResult} from 'block_scicalc/evaluator';
+import {evaluate, formatResult, isSuperscript} from 'block_scicalc/evaluator';
+import {type, startExponent, backspace} from 'block_scicalc/editor';
 
 const MAX_HISTORY_ITEMS = 50;
+
+/** Start of every history key in localStorage (older versions used ..._v1_ and ..._v2_ keys). */
+export const HISTORY_PREFIX = 'block_scicalc_history_';
 
 /** Keys that continue from a displayed result instead of starting a new expression. */
 const CHAINING_KEYS = '+-*/^%!';
@@ -34,7 +38,7 @@ const CHAINING_KEYS = '+-*/^%!';
  * @param {string} text
  * @returns {boolean}
  */
-const chains = (text) => text !== '' && CHAINING_KEYS.includes(text[0]);
+const chains = (text) => text !== '' && (CHAINING_KEYS.includes(text[0]) || isSuperscript(text[0]));
 
 /** A display holding just one number, whose sign the +/− key can flip. */
 const SINGLE_NUMBER = /^-?(\d+\.?\d*|\.\d+)(E[+-]?\d+)?$/i;
@@ -60,6 +64,27 @@ const loadHistory = (key) => {
 };
 
 /**
+ * Delete calculator history left by earlier login sessions (any user), keeping only keepKey.
+ *
+ * @param {Storage} storage
+ * @param {string} keepKey
+ */
+export const pruneHistory = (storage, keepKey) => {
+    try {
+        const stale = [];
+        for (let i = 0; i < storage.length; i++) {
+            const key = storage.key(i);
+            if (key.startsWith(HISTORY_PREFIX) && key !== keepKey) {
+                stale.push(key);
+            }
+        }
+        stale.forEach((key) => storage.removeItem(key));
+    } catch (e) {
+        // Storage blocked: there is nothing stored to clear.
+    }
+};
+
+/**
  * Persist history, ignoring quota and privacy-mode errors.
  *
  * @param {string} key
@@ -81,13 +106,18 @@ const saveHistory = (key, items) => {
  * Wire up the calculator inside the rendered popup.
  *
  * @param {HTMLElement} root The #scicalc-popup element.
- * @param {string} historyKey localStorage key for this user's history.
+ * @param {string} historyKey localStorage key for this login session's history.
  */
 export const init = (root, historyKey) => {
     const display = root.querySelector('#scicalc-display');
     const errorBox = root.querySelector('#scicalc-error');
     const historyList = root.querySelector('#scicalc-history');
 
+    try {
+        pruneHistory(window.localStorage, historyKey);
+    } catch (e) {
+        // Accessing localStorage itself can throw when site data is blocked.
+    }
     let history = loadHistory(historyKey);
     let lastAnswer = null;
     // True while the display shows a result; the next key decides whether to chain or start afresh.
@@ -98,17 +128,41 @@ export const init = (root, historyKey) => {
         errorBox.hidden = !message;
     };
 
-    const insert = (text, cursorBack = 0) => {
-        const start = display.selectionStart ?? display.value.length;
-        const end = display.selectionEnd ?? display.value.length;
-        display.value = display.value.slice(0, start) + text + display.value.slice(end);
-        const pos = start + text.length - cursorBack;
-        display.setSelectionRange(pos, pos);
+    // A ^ was pressed and its exponent hasn't been typed yet (see block_scicalc/editor).
+    let pending = false;
+    const powerKey = root.querySelector('[data-action="power"][data-value=""]');
+
+    const getState = () => ({
+        value: display.value,
+        start: display.selectionStart ?? display.value.length,
+        end: display.selectionEnd ?? display.value.length,
+        pending,
+    });
+
+    const setState = (state) => {
+        display.value = state.value;
+        display.setSelectionRange(state.start, state.end);
+        pending = state.pending;
+        powerKey.classList.toggle('scicalc-btn-active', pending);
+        powerKey.setAttribute('aria-pressed', String(pending));
     };
 
-    const setValue = (value) => {
-        display.value = value;
-        display.setSelectionRange(value.length, value.length);
+    const setValue = (value) => setState({value, start: value.length, end: value.length, pending: false});
+
+    /**
+     * Before a key is applied to a displayed result: keep the result for operator keys
+     * (bracketing a negative one before a power, so -81 then x² is (-81)²), else clear it.
+     *
+     * @param {boolean} continues
+     * @param {boolean} power Whether the key raises the result to a power.
+     */
+    const leaveResult = (continues, power) => {
+        showingResult = false;
+        if (!continues) {
+            setValue('');
+        } else if (power && display.value.startsWith('-')) {
+            setValue('(' + display.value + ')');
+        }
     };
 
     const renderHistory = () => {
@@ -156,10 +210,10 @@ export const init = (root, historyKey) => {
 
     const negate = () => {
         const value = display.value.trim();
-        if (SINGLE_NUMBER.test(value)) {
+        if (!pending && SINGLE_NUMBER.test(value)) {
             setValue(value.startsWith('-') ? value.slice(1) : '-' + value);
         } else {
-            insert('-');
+            setState(type(getState(), '-'));
         }
     };
 
@@ -172,9 +226,10 @@ export const init = (root, historyKey) => {
         const value = btn.dataset.value;
         const wasResult = showingResult;
 
-        // After a result, operator keys build on it; anything that starts an operand replaces it.
-        if (showingResult && ['insert', 'wrap', 'ans'].includes(action) && !chains(value)) {
-            setValue('');
+        if (showingResult && ['insert', 'wrap', 'ans', 'power'].includes(action)) {
+            // The bare ^ key continues from a result; 10ˣ and eˣ start a new calculation.
+            const continues = action === 'power' ? value === '' : chains(value);
+            leaveResult(continues, value === '' || isSuperscript(value));
         }
         if (action !== 'equals') {
             showingResult = false;
@@ -183,15 +238,19 @@ export const init = (root, historyKey) => {
 
         switch (action) {
             case 'insert':
-                insert(value);
+                setState(type(getState(), value));
                 break;
             case 'wrap':
                 // Functions like log() insert both parens and leave the cursor between them.
-                insert(value, 1);
+                setState(type(getState(), value, 1));
+                break;
+            case 'power':
+                // ^ starts an exponent; 10ˣ and eˣ type their base first.
+                setState(startExponent(value ? type(getState(), value) : getState()));
                 break;
             case 'ans':
                 if (lastAnswer !== null) {
-                    insert(lastAnswer);
+                    setState(type(getState(), lastAnswer));
                 }
                 break;
             case 'negate':
@@ -199,23 +258,16 @@ export const init = (root, historyKey) => {
                 // A negated result is still a result: the next digit starts a new calculation.
                 showingResult = wasResult;
                 break;
-            case 'backspace': {
-                const start = display.selectionStart ?? display.value.length;
-                const end = display.selectionEnd ?? display.value.length;
-                if (start !== end) {
-                    insert('');
-                } else if (start > 0) {
-                    display.setSelectionRange(start - 1, start);
-                    insert('');
-                }
+            case 'backspace':
+                setState(backspace(getState()));
                 break;
-            }
             case 'clear':
                 setValue('');
                 break;
             case 'equals':
                 // A repeat press on a result (e.g. a double-tap) would only add a duplicate history entry.
                 if (!showingResult) {
+                    setState({...getState(), pending: false});
                     calculate();
                 }
                 break;
@@ -223,25 +275,38 @@ export const init = (root, historyKey) => {
         display.focus();
     });
 
+    // Typing goes through the same rules as the keypad, so ^ then 3 gives ³.
     display.addEventListener('keydown', (ev) => {
+        if (ev.ctrlKey || ev.metaKey || ev.altKey) {
+            return;
+        }
         if (ev.key === 'Enter') {
             ev.preventDefault();
+            setState({...getState(), pending: false});
             calculate();
             return;
         }
-        // Only printable characters and deletions end result mode; Shift, arrows, Ctrl+C etc. don't.
-        if (!showingResult || ev.ctrlKey || ev.metaKey || ev.altKey) {
+        if (ev.key === 'Backspace') {
+            ev.preventDefault();
+            showingResult = false;
+            setState(backspace(getState()));
             return;
         }
-        if (ev.key.length === 1) {
-            if (!chains(ev.key)) {
-                setValue('');
+        if (ev.key.length !== 1) {
+            // Arrows, Home, Tab etc.: moving away abandons a pending ^.
+            if (ev.key !== 'Shift') {
+                setState({...getState(), pending: false});
             }
-            showingResult = false;
-        } else if (ev.key === 'Backspace' || ev.key === 'Delete') {
-            showingResult = false;
+            return;
         }
+        ev.preventDefault();
+        showError('');
+        if (showingResult) {
+            leaveResult(chains(ev.key), ev.key === '^');
+        }
+        setState(ev.key === '^' ? startExponent(getState()) : type(getState(), ev.key));
     });
+    display.addEventListener('click', () => setState({...getState(), pending: false}));
 
     root.querySelector('#scicalc-clear-history').addEventListener('click', () => {
         history = [];

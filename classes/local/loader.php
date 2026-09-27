@@ -34,9 +34,8 @@ class loader {
      * Load the calculator JS and strings onto the page (once per request).
      *
      * @param moodle_page $page
-     * @param int $instanceid The block instance the calculator belongs to (scopes its history).
      */
-    public static function require_calculator(moodle_page $page, int $instanceid): void {
+    public static function require_calculator(moodle_page $page): void {
         global $USER;
 
         if (self::$loaded || ($page->cm && $page->cm->modname === 'quiz' && self::is_turned_off((int) $page->cm->id))) {
@@ -62,7 +61,8 @@ class loader {
             'error_invalid_expression',
             'error_non_finite_result',
         ], 'block_scicalc');
-        $page->requires->js_call_amd('block_scicalc/popup', 'init', [(int) $USER->id, $instanceid]);
+        // History lasts for one login session: the login time identifies the session.
+        $page->requires->js_call_amd('block_scicalc/popup', 'init', [(int) $USER->id, (int) ($USER->currentlogin ?? 0)]);
     }
 
     /**

@@ -100,8 +100,8 @@ final class loader_test extends \advanced_testcase {
         $page = new \moodle_page();
         $page->set_context(\context_system::instance());
 
-        loader::require_calculator($page, 1);
-        loader::require_calculator($page, 2);
+        loader::require_calculator($page);
+        loader::require_calculator($page);
 
         $this->assertSame(1, $this->count_calculator_calls($page));
         loader::reset();
@@ -123,13 +123,13 @@ final class loader_test extends \advanced_testcase {
         $page = new \moodle_page();
         [$course, $cm] = get_course_and_cm_from_cmid($quiz->cmid);
         $page->set_cm($cm, $course);
-        loader::require_calculator($page, 1);
+        loader::require_calculator($page);
         $this->assertSame(0, $this->count_calculator_calls($page));
 
         // Turning it back on loads it again.
         loader::set_turned_off($quiz->cmid, false);
         $this->assertFalse(loader::is_turned_off($quiz->cmid));
-        loader::require_calculator($page, 1);
+        loader::require_calculator($page);
         $this->assertSame(1, $this->count_calculator_calls($page));
 
         // Deleting the quiz removes its setting.

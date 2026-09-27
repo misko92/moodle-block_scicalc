@@ -90,6 +90,28 @@ describe('functions and constants', () => {
     });
 });
 
+describe('superscript exponents', () => {
+    test.each([
+        ['2³', '8'],
+        ['10⁻⁴', '0.0001'],
+        ['2¹⁰', '1024'],
+        ['-2²', '-4'],
+        ['(-2)²', '4'],
+        ['2³×4', '32'],
+        ['2³-1', '7'],
+        ['e²', String(Number((Math.E ** 2).toPrecision(15)))],
+        ['6.02E23²', '3.62404E47'],
+        ['(1+1)⁺³', '8'],
+        ['2³²', '4294967296'],
+    ])('%s = %s', (expr, expected) => {
+        expect(calc(expr)).toBe(expected);
+    });
+
+    test('a superscript with nothing to raise is an error', () => {
+        expect(() => evaluate('³')).toThrow('error_stack_underflow');
+    });
+});
+
 describe('absolute value bars', () => {
     test.each([
         ['|-3|', '3'],

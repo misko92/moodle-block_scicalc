@@ -70,7 +70,7 @@ class block_scicalc extends block_base {
             return $this->content;
         }
 
-        loader::require_calculator($this->page, (int) $this->instance->id);
+        loader::require_calculator($this->page);
 
         $this->content = new stdClass();
         $this->content->text = $this->page->user_is_editing() ? get_string('editinghint', 'block_scicalc') : '';

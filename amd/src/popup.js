@@ -33,7 +33,7 @@
 
 import {getStrings} from 'core/str';
 import Templates from 'core/templates';
-import {init as initCalculator} from 'block_scicalc/calculator';
+import {init as initCalculator, HISTORY_PREFIX} from 'block_scicalc/calculator';
 
 const STATE_KEY = 'block_scicalc_popup_v1';
 
@@ -42,17 +42,18 @@ let initialised = false;
 
 /**
  * Keypad in grid order: [label, action, value, style, aria-label string key].
- * "wrap" inserts value and leaves the cursor before its last character.
+ * "wrap" inserts value and leaves the cursor before its last character; "power" types
+ * value (if any) and then starts a superscript exponent.
  */
 const BUTTONS = [
     ['|x|', 'wrap', '||', 'func', 'key_abs'],
     ['LOG', 'wrap', 'log()', 'func', 'key_log'],
     ['LN', 'wrap', 'ln()', 'func', 'key_ln'],
-    ['x²', 'insert', '^2', 'func', 'key_square'],
+    ['x²', 'insert', '²', 'func', 'key_square'],
     ['1/x', 'wrap', '1/()', 'func', 'key_reciprocal'],
-    ['^', 'insert', '^', 'func', 'key_power'],
-    ['10ˣ', 'wrap', '10^()', 'func', 'key_tenpower'],
-    ['eˣ', 'wrap', 'e^()', 'func', 'key_epower'],
+    ['^', 'power', '', 'func', 'key_power'],
+    ['10ˣ', 'power', '10', 'func', 'key_tenpower'],
+    ['eˣ', 'power', 'e', 'func', 'key_epower'],
     ['√x', 'wrap', '√()', 'func', 'key_sqrt'],
     ['ⁿ√', 'wrap', '^(1/)', 'func', 'key_nthroot'],
     ['(', 'insert', '(', 'op'],
@@ -138,10 +139,10 @@ const buildContext = async() => {
 /**
  * Add the calculator to the page.
  *
- * @param {number} userid Used to keep each user's history separate on shared computers.
- * @param {number} instanceid Block instance id.
+ * @param {number} userid
+ * @param {number} loginid The user's login time, which identifies this login session.
  */
-export const init = async(userid, instanceid) => {
+export const init = async(userid, loginid) => {
     if (initialised) {
         return;
     }
@@ -155,7 +156,9 @@ export const init = async(userid, instanceid) => {
     const handle = document.getElementById('scicalc-drag-handle');
     const display = document.getElementById('scicalc-display');
 
-    initCalculator(popup, `block_scicalc_history_v2_${userid}_${instanceid}`);
+    // One history per login session, so it never carries over to the next login (or the next
+    // student on a shared computer); the calculator clears out older sessions' history.
+    initCalculator(popup, `${HISTORY_PREFIX}${userid}_${loginid}`);
 
     const state = loadState();
 

@@ -21,6 +21,7 @@
  * Errors are thrown as Error objects whose message is a block_scicalc
  * language string key, so the UI can translate them.
  *
+ * Powers: 2^3, or superscripts as typed by the keypad (2³, 10⁻⁴).
  * Constants: pi (also π), e (lower-case only — "E" is the exponent marker).
  * Functions: sin, cos, tan, asin, acos, atan (degrees), sqrt (also √), abs (also |x|),
  * ln, log, exp, pow, min, max, floor, ceil, round.
@@ -48,6 +49,30 @@ const RIGHT_ASSOCIATIVE = new Set(['^', 'u-', 'u+']);
 const OPERAND_EXPECTED_AFTER = new Set(['+', '-', '*', '/', '%', '^', '(', ',', 'u-', 'u+']);
 
 const DEG2RAD = Math.PI / 180;
+
+/** Superscript characters the display uses for exponents, and their plain equivalents. */
+export const SUPERSCRIPTS = {
+    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    '-': '⁻', '+': '⁺',
+};
+const FROM_SUPERSCRIPT = Object.fromEntries(Object.entries(SUPERSCRIPTS).map(([plain, sup]) => [sup, plain]));
+
+/**
+ * Whether a character is an exponent superscript.
+ *
+ * @param {string} c
+ * @returns {boolean}
+ */
+export const isSuperscript = (c) => c !== undefined && c in FROM_SUPERSCRIPT;
+
+/**
+ * Convert superscript characters back to plain ones (⁻⁴ → -4).
+ *
+ * @param {string} s
+ * @returns {string}
+ */
+export const fromSuperscript = (s) => [...s].map((c) => FROM_SUPERSCRIPT[c] ?? c).join('');
 
 const FUNCTIONS = {
     sin: [1, (x) => Math.sin(x * DEG2RAD)],
@@ -124,6 +149,14 @@ export const tokenize = (input) => {
                 i++;
             }
             tokens.push({type: 'ident', value: s.slice(start, i)});
+        } else if (isSuperscript(c)) {
+            // A superscript run is an exponent: 10⁻⁴ → 10 ^ ( -4 ).
+            const start = i;
+            while (i < s.length && isSuperscript(s[i])) {
+                i++;
+            }
+            tokens.push({type: 'op', value: '^'}, {type: 'op', value: '('},
+                ...tokenize(fromSuperscript(s.slice(start, i))), {type: 'op', value: ')'});
         } else if (c === '|') {
             if (expectingOperand()) {
                 tokens.push({type: 'ident', value: 'abs'}, {type: 'op', value: '('});
