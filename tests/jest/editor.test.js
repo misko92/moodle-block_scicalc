@@ -20,7 +20,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {type, startExponent, backspace, inExponent, isFillable, fillFunction, replacesFill} from '../../amd/src/editor';
+import {
+    type, startExponent, backspace, inExponent, isFillable, fillFunction, replacesFill, toggleSign,
+} from '../../amd/src/editor';
 import {evaluate, formatResult} from '../../amd/src/evaluator';
 
 const empty = {value: '', start: 0, end: 0, pending: false};
@@ -187,5 +189,60 @@ describe('filling in the previous answer', () => {
         expect(formatResult(evaluate(fillFunction('wrap', 'log()', '2.5E-4')))).toBe('-3.60205999132796');
         expect(formatResult(evaluate(fillFunction('power', '10', '-4.2')))).toBe('0.0000630957344480193');
         expect(formatResult(evaluate(fillFunction('wrap', '1/()', '-4')))).toBe('-0.25');
+    });
+});
+
+describe('+/− flips the sign of the term at the cursor', () => {
+    /**
+     * Build a state from a string with | marking the cursor.
+     *
+     * @param {string} text
+     * @returns {Object}
+     */
+    const at = (text) => {
+        const pos = text.indexOf('|');
+        return {value: text.replace('|', ''), start: pos, end: pos, pending: false};
+    };
+
+    test.each([
+        // Functions: the sign goes outside.
+        ['log(.0002|)', '-log(.0002|)'],
+        ['log(.0002)|', '-log(.0002)|'],
+        ['-log(.0002)|', 'log(.0002)|'],
+        ['log(|)', '-log(|)'],
+        ['2*ln(5|)', '2*-ln(5|)'],
+        ['5-log(2)|', '5+log(2)|'],
+        ['5+log(2)|', '5-log(2)|'],
+        ['√(16)|', '-√(16)|'],
+        ['max(1,2|)', '-max(1,2|)'],
+        ['log(log(3|))', 'log(-log(3|))'],
+        ['log(log(3))|', '-log(log(3))|'],
+        ['1/(4)|', '-1/(4)|'],
+        ['10^(4.2)|', '-10^(4.2)|'],
+        // Numbers.
+        ['12|', '-12|'],
+        ['-12|', '12|'],
+        ['1.2E-7|', '-1.2E-7|'],
+        ['3+5|', '3-5|'],
+        ['3-5|', '3+5|'],
+        ['3*5|', '3*-5|'],
+        ['3*-5|', '3*5|'],
+        ['(3+5|)', '(3-5|)'],
+        ['(3+5)|', '-(3+5)|'],
+        ['pi|', '-pi|'],
+        // Superscript exponents.
+        ['10⁴|', '10⁻⁴|'],
+        ['10⁻⁴|', '10⁴|'],
+        // Nothing to flip yet: start a negative number.
+        ['|', '-|'],
+        ['3*|', '3*-|'],
+    ])('%s → %s', (before, after) => {
+        const state = toggleSign(at(before));
+        expect(state.value.slice(0, state.start) + '|' + state.value.slice(state.end)).toBe(after);
+    });
+
+    test('pH = −log[H+]', () => {
+        const state = toggleSign(at('log(.0002)|'));
+        expect(formatResult(evaluate(state.value))).toBe('3.69897000433602');
     });
 });

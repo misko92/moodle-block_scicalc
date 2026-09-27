@@ -130,6 +130,28 @@ Feature: Scientific calculator popup
     And I press "Logarithm base 10"
     And the field "Calculator display" matches value "log()"
 
+  Scenario: Change sign puts the minus outside a function
+    Given I am on the "Course 1" course page logged in as student1
+    And I click on "Calculator" "button"
+    When I press "Logarithm base 10"
+    And I click on "[data-action='insert'][data-value='.']" "css_element"
+    And I click on "[data-action='insert'][data-value='0']" "css_element"
+    And I click on "[data-action='insert'][data-value='0']" "css_element"
+    And I click on "[data-action='insert'][data-value='0']" "css_element"
+    And I click on "[data-action='insert'][data-value='2']" "css_element"
+    And I press "Change sign"
+    Then the field "Calculator display" matches value "-log(.0002)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "3.69897000433602"
+    # Filled-in answer: LOG then +/- also puts the minus outside.
+    And I set the field "Calculator display" to "2.5E-4"
+    And I press "Equals"
+    And I press "Logarithm base 10"
+    And I press "Change sign"
+    And the field "Calculator display" matches value "-log(0.00025)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "3.60205999132796"
+
   Scenario: Invalid expressions show an explanation
     Given I am on the "Course 1" course page logged in as student1
     And I click on "Calculator" "button"

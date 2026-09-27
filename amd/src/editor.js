@@ -213,3 +213,109 @@ export const fillFunction = (action, value, arg) => {
  */
 export const replacesFill = (fill, action, value) => action === 'ans' ||
     (action === 'insert' && (/^[\d.(]$/.test(value) || (fill.action === 'power' && value === '-')));
+
+/** Characters after which a minus is a sign rather than a subtraction. */
+const SIGN_FOLLOWS = '+-−*/×÷^(,%';
+
+/**
+ * Where the term at the cursor starts, for +/−: a function call around or just before the
+ * cursor (the sign goes outside it: −log(x)), a bracketed group just before it, or a number.
+ *
+ * @param {string} value
+ * @param {number} pos Cursor position.
+ * @returns {number|null} Index of the term's first character, or null if there is none.
+ */
+const termStart = (value, pos) => {
+    const isName = (c) => c !== undefined && /[A-Za-z√]/.test(c);
+    const nameStart = (i) => {
+        while (i > 0 && isName(value[i - 1])) {
+            i--;
+        }
+        return i;
+    };
+    const numberStart = (end) => {
+        const match = /(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.exec(value.slice(0, end));
+        return match ? end - match[0].length : null;
+    };
+    // The start of a bracketed group opening at index q: log(…), 1/(…), 10^(…) or (…).
+    const groupStart = (q) => {
+        if (isName(value[q - 1])) {
+            return nameStart(q - 1);
+        }
+        if (value[q - 1] === '/' || value[q - 1] === '^') {
+            return numberStart(q - 1) ?? q;
+        }
+        return q;
+    };
+
+    // Inside a function call's brackets: log(.0002|).
+    let depth = 0;
+    for (let i = pos - 1; i >= 0; i--) {
+        if (value[i] === ')') {
+            depth++;
+        } else if (value[i] === '(' && depth-- === 0) {
+            if (isName(value[i - 1])) {
+                return nameStart(i - 1);
+            }
+            break;
+        }
+    }
+    // Just after a bracketed group: log(.0002)|.
+    if (value[pos - 1] === ')') {
+        depth = 0;
+        for (let i = pos - 1; i >= 0; i--) {
+            if (value[i] === ')') {
+                depth++;
+            } else if (value[i] === '(' && --depth === 0) {
+                return groupStart(i);
+            }
+        }
+        return null;
+    }
+    // A number or constant (pi, e) just before the cursor.
+    return numberStart(pos) ?? (isName(value[pos - 1]) ? nameStart(pos - 1) : null);
+};
+
+/**
+ * The +/− key: flip the sign of the term at the cursor. A sign minus is removed or added
+ * (log(x) ↔ −log(x)), and a subtraction becomes an addition and back (5−log(2) ↔ 5+log(2)).
+ * Right after a superscript exponent it flips the exponent (10⁻⁴ ↔ 10⁴). With no term to
+ * flip, it starts a negative number.
+ *
+ * @param {Object} state
+ * @returns {Object}
+ */
+export const toggleSign = (state) => {
+    const {value, start: pos} = state;
+    const edit = (at, remove, insert) => {
+        const delta = insert.length - remove;
+        return {
+            value: value.slice(0, at) + insert + value.slice(at + remove),
+            start: pos + delta,
+            end: pos + delta,
+            pending: false,
+        };
+    };
+
+    if (isSuperscript(value[pos - 1])) {
+        let from = pos;
+        while (from > 0 && isSuperscript(value[from - 1])) {
+            from--;
+        }
+        return value[from] === SUPERSCRIPTS['-'] ? edit(from, 1, '') : edit(from, 0, SUPERSCRIPTS['-']);
+    }
+
+    const at = termStart(value, pos);
+    if (at === null) {
+        return replaceSelection(state, '-');
+    }
+    const before = value[at - 1];
+    if (before === '-' || before === '−') {
+        const isSign = at === 1 || SIGN_FOLLOWS.includes(value[at - 2]);
+        return isSign ? edit(at - 1, 1, '') : edit(at - 1, 1, '+');
+    }
+    if (before === '+') {
+        return edit(at - 1, 1, '-');
+    }
+    return edit(at, 0, '-');
+};

@@ -22,7 +22,9 @@
  */
 
 import {evaluate, formatResult, isSuperscript} from 'block_scicalc/evaluator';
-import {type, startExponent, backspace, isFillable, fillFunction, replacesFill} from 'block_scicalc/editor';
+import {
+    type, startExponent, backspace, isFillable, fillFunction, replacesFill, toggleSign,
+} from 'block_scicalc/editor';
 
 const MAX_HISTORY_ITEMS = 50;
 
@@ -39,9 +41,6 @@ const CHAINING_KEYS = '+-*/^%!';
  * @returns {boolean}
  */
 const chains = (text) => text !== '' && (CHAINING_KEYS.includes(text[0]) || isSuperscript(text[0]));
-
-/** A display holding just one number, whose sign the +/− key can flip. */
-const SINGLE_NUMBER = /^-?(\d+\.?\d*|\.\d+)(E[+-]?\d+)?$/i;
 
 /**
  * Read stored history, tolerating missing or corrupt storage.
@@ -181,8 +180,9 @@ export const init = (root, historyKey) => {
             startFunction(current.action, current.value);
             return false;
         }
-        if (action === 'negate') {
-            // Flip the filled-in answer's sign: 10ˣ, +/− gives 10^(−4.2) from a pH of 4.2.
+        if (action === 'negate' && current.action === 'power') {
+            // Flip the filled-in exponent's sign: 10ˣ, +/− gives 10^(−4.2) from a pH of 4.2.
+            // (For LOG etc. the sign goes outside instead: −log(0.0002), done by negate().)
             fill = {...current, arg: current.arg.startsWith('-') ? current.arg.slice(1) : '-' + current.arg};
             showFill();
             return true;
@@ -246,14 +246,8 @@ export const init = (root, historyKey) => {
         }
     };
 
-    const negate = () => {
-        const value = display.value.trim();
-        if (!pending && SINGLE_NUMBER.test(value)) {
-            setValue(value.startsWith('-') ? value.slice(1) : '-' + value);
-        } else {
-            setState(type(getState(), '-'));
-        }
-    };
+    // After a bare ^ the minus belongs to the exponent (⁻); otherwise flip the term at the cursor.
+    const negate = () => setState(pending ? type(getState(), '-') : toggleSign(getState()));
 
     root.querySelector('.scicalc-grid').addEventListener('click', (ev) => {
         const btn = ev.target.closest('[data-action]');
