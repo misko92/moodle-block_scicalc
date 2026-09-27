@@ -22,7 +22,7 @@
  */
 
 import {evaluate, formatResult, isSuperscript} from 'block_scicalc/evaluator';
-import {type, startExponent, backspace} from 'block_scicalc/editor';
+import {type, startExponent, backspace, isFillable, fillFunction, replacesFill} from 'block_scicalc/editor';
 
 const MAX_HISTORY_ITEMS = 50;
 
@@ -149,6 +149,47 @@ export const init = (root, historyKey) => {
 
     const setValue = (value) => setState({value, start: value.length, end: value.length, pending: false});
 
+    // A function key filled in with the previous answer, e.g. log(12.5): {action, value, arg}.
+    // It's a suggestion until the next key: typing a number replaces the answer instead.
+    let fill = null;
+
+    const showFill = () => setValue(fillFunction(fill.action, fill.value, fill.arg));
+
+    /**
+     * Apply a function or power key the normal way, to an empty display: log(|) or 10 then ^.
+     *
+     * @param {string} action
+     * @param {string} value
+     */
+    const startFunction = (action, value) => {
+        setState(action === 'wrap' ? type(getState(), value, 1) : startExponent(type(getState(), value)));
+    };
+
+    /**
+     * Handle a key while a filled-in answer is showing. Returns true if the key was used up.
+     *
+     * @param {string} action
+     * @param {string} value
+     * @returns {boolean}
+     */
+    const keyOnFill = (action, value) => {
+        const current = fill;
+        fill = null;
+        if (replacesFill(current, action, value)) {
+            // "LOG 0.002" means log(0.002): drop the answer and let the key start the argument.
+            setValue('');
+            startFunction(current.action, current.value);
+            return false;
+        }
+        if (action === 'negate') {
+            // Flip the filled-in answer's sign: 10ˣ, +/− gives 10^(−4.2) from a pH of 4.2.
+            fill = {...current, arg: current.arg.startsWith('-') ? current.arg.slice(1) : '-' + current.arg};
+            showFill();
+            return true;
+        }
+        return false;
+    };
+
     /**
      * Before a key is applied to a displayed result: keep the result for operator keys
      * (the editor brackets a negative one before a power), else clear it.
@@ -223,6 +264,20 @@ export const init = (root, historyKey) => {
         const value = btn.dataset.value;
         const wasResult = showingResult;
 
+        // LOG, LN, √x, 1/x, |x|, 10ˣ, eˣ straight after an answer apply to that answer.
+        if (isFillable(action, value) && (showingResult || fill) && display.value.trim() !== '') {
+            fill = {action, value, arg: display.value.trim()};
+            showingResult = false;
+            showError('');
+            showFill();
+            display.focus();
+            return;
+        }
+        if (fill && keyOnFill(action, value)) {
+            display.focus();
+            return;
+        }
+
         if (showingResult && ['insert', 'wrap', 'ans', 'power'].includes(action)) {
             // The bare ^ key continues from a result; 10ˣ and eˣ start a new calculation.
             const continues = action === 'power' ? value === '' : chains(value);
@@ -277,6 +332,10 @@ export const init = (root, historyKey) => {
         if (ev.ctrlKey || ev.metaKey || ev.altKey) {
             return;
         }
+        if (ev.key !== 'Shift') {
+            // Any key other than a printable one (handled below) accepts the filled-in answer.
+            fill = ev.key.length === 1 ? fill : null;
+        }
         if (ev.key === 'Enter') {
             ev.preventDefault();
             setState({...getState(), pending: false});
@@ -298,12 +357,18 @@ export const init = (root, historyKey) => {
         }
         ev.preventDefault();
         showError('');
+        if (fill) {
+            keyOnFill('insert', ev.key);
+        }
         if (showingResult) {
             leaveResult(chains(ev.key));
         }
         setState(ev.key === '^' ? startExponent(getState()) : type(getState(), ev.key));
     });
-    display.addEventListener('click', () => setState({...getState(), pending: false}));
+    display.addEventListener('click', () => {
+        fill = null;
+        setState({...getState(), pending: false});
+    });
 
     root.querySelector('#scicalc-clear-history').addEventListener('click', () => {
         history = [];

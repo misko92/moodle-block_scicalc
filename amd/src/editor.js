@@ -22,6 +22,9 @@
  * in superscript falls back to caret form: a decimal point turns 10⁻⁴ into 10^(-4.),
  * "(" gives ^(, and any other key after a bare ^ just inserts the ^.
  *
+ * Function keys pressed right after a result can fill in that answer (log(12.5)); see
+ * isFillable(), fillFunction() and replacesFill().
+ *
  * Raising a negative number to a power brackets it first, so −3 then x² shows (−3)² = 9
  * rather than −3² = −9 (the minus applying after the power), which is rarely what a
  * student means. A minus that subtracts (5−3²) is left alone.
@@ -167,3 +170,46 @@ export const backspace = (state) => {
     }
     return replaceSelection(state, '');
 };
+
+/**
+ * Whether a key applies a function that can be filled in with the previous answer:
+ * LOG, LN, √x, 1/x, |x| (wrap keys other than ⁿ√, which already continues from a result)
+ * and 10ˣ / eˣ (power keys with a base).
+ *
+ * @param {string} action
+ * @param {string} value
+ * @returns {boolean}
+ */
+export const isFillable = (action, value) =>
+    (action === 'wrap' && !value.startsWith('^')) || (action === 'power' && value !== '');
+
+/**
+ * The display text for a function applied to a previous answer: log(12.5), 1/(12.5), |−3|,
+ * 10³ (whole-number exponents as superscripts) or 10^(4.2).
+ *
+ * @param {string} action "wrap" or "power".
+ * @param {string} value The key's value, e.g. "log()" or "10".
+ * @param {string} arg The previous answer (or whole previous expression).
+ * @returns {string}
+ */
+export const fillFunction = (action, value, arg) => {
+    if (action === 'wrap') {
+        return value.slice(0, -1) + arg + value.slice(-1);
+    }
+    if (/^-?\d+$/.test(arg)) {
+        return value + [...arg].map((c) => SUPERSCRIPTS[c]).join('');
+    }
+    return value + '^(' + arg + ')';
+};
+
+/**
+ * Whether a key, pressed while a filled-in answer is showing, starts a new argument
+ * instead (typing a number after LOG means "log of this number").
+ *
+ * @param {Object} fill The filled-in function: {action, value, arg}.
+ * @param {string} action The key's action.
+ * @param {string} value The key's value.
+ * @returns {boolean}
+ */
+export const replacesFill = (fill, action, value) => action === 'ans' ||
+    (action === 'insert' && (/^[\d.(]$/.test(value) || (fill.action === 'power' && value === '-')));

@@ -15,6 +15,11 @@ EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
   e.g. `2³` or `10⁻⁴`; **10ˣ** and **eˣ** start an exponent straight away. Decimal
   or fraction exponents fall back to caret form: a `.` turns `10⁻⁴` into `10^(-4.)`,
   and ⁿ√ gives `^(1/ )`. Typed `^` on a keyboard works the same way.
+- Function keys continue from an answer: after a result, **LOG**, **LN**, **√x**,
+  **1/x**, **|x|**, **10ˣ** and **eˣ** fill it in (`log(12.5)`, `10^(4.2)`) and wait
+  for **=**. Typing a number straight away replaces it (**LOG** then `0.002` gives
+  `log(0.002)`); an operator builds on it; after **10ˣ**/**eˣ**, **+/−** flips its sign
+  and **−** starts a new negative exponent.
 - A negative number raised to a power is bracketed as it's typed: −3 then x² shows
   `(−3)²` = 9, which is what students almost always mean. A minus that subtracts is
   left alone (`5−3²` = −4). Otherwise expressions follow normal maths precedence.

@@ -20,7 +20,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {type, startExponent, backspace, inExponent} from '../../amd/src/editor';
+import {type, startExponent, backspace, inExponent, isFillable, fillFunction, replacesFill} from '../../amd/src/editor';
 import {evaluate, formatResult} from '../../amd/src/evaluator';
 
 const empty = {value: '', start: 0, end: 0, pending: false};
@@ -133,5 +133,59 @@ describe('typed expressions evaluate as expected', () => {
         [['6', '.', '0', '2', 'E', '2', '3', '*', '2'], '1.204E24'],
     ])('%j = %s', (keys, expected) => {
         expect(formatResult(evaluate(press(keys).value))).toBe(expected);
+    });
+});
+
+describe('filling in the previous answer', () => {
+    test.each([
+        ['wrap', 'log()', true],
+        ['wrap', 'ln()', true],
+        ['wrap', '√()', true],
+        ['wrap', '1/()', true],
+        ['wrap', '||', true],
+        ['power', '10', true],
+        ['power', 'e', true],
+        ['wrap', '^(1/)', false],
+        ['power', '', false],
+        ['insert', '²', false],
+        ['insert', '7', false],
+    ])('isFillable(%s, %s) = %s', (action, value, expected) => {
+        expect(isFillable(action, value)).toBe(expected);
+    });
+
+    test.each([
+        ['wrap', 'log()', '12.5', 'log(12.5)'],
+        ['wrap', '1/()', '4', '1/(4)'],
+        ['wrap', '||', '-3', '|-3|'],
+        ['wrap', '√()', '1.204E24', '√(1.204E24)'],
+        ['power', '10', '3', '10³'],
+        ['power', '10', '-4', '10⁻⁴'],
+        ['power', '10', '-4.2', '10^(-4.2)'],
+        ['power', 'e', '2E-3', 'e^(2E-3)'],
+        ['wrap', 'ln()', 'log(12.5)', 'ln(log(12.5))'],
+    ])('fillFunction(%s, %s, %s) = %s', (action, value, arg, expected) => {
+        expect(fillFunction(action, value, arg)).toBe(expected);
+    });
+
+    test.each([
+        ['wrap', 'insert', '7', true],
+        ['wrap', 'insert', '.', true],
+        ['wrap', 'insert', '(', true],
+        ['wrap', 'ans', '', true],
+        ['wrap', 'insert', '-', false],
+        ['wrap', 'insert', '*', false],
+        ['wrap', 'insert', '²', false],
+        ['power', 'insert', '-', true],
+        ['power', 'insert', '5', true],
+        ['power', 'insert', '+', false],
+        ['wrap', 'equals', '', false],
+    ])('a %s fill is replaced by %s "%s": %s', (fillaction, action, value, expected) => {
+        expect(replacesFill({action: fillaction, value: '', arg: '1'}, action, value)).toBe(expected);
+    });
+
+    test('filled-in functions evaluate', () => {
+        expect(formatResult(evaluate(fillFunction('wrap', 'log()', '2.5E-4')))).toBe('-3.60205999132796');
+        expect(formatResult(evaluate(fillFunction('power', '10', '-4.2')))).toBe('0.0000630957344480193');
+        expect(formatResult(evaluate(fillFunction('wrap', '1/()', '-4')))).toBe('-0.25');
     });
 });

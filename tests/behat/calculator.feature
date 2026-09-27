@@ -88,6 +88,48 @@ Feature: Scientific calculator popup
     And I click on "Calculator" "button"
     And I should not see "12*3" in the "#scicalc-history" "css_element"
 
+  Scenario: Function keys after an answer apply to that answer
+    Given I am on the "Course 1" course page logged in as student1
+    And I click on "Calculator" "button"
+    And I set the field "Calculator display" to "100*10"
+    And I press "Equals"
+    When I press "Logarithm base 10"
+    Then the field "Calculator display" matches value "log(1000)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "3"
+    # Typing a number after the function key replaces the answer.
+    And I press "Logarithm base 10"
+    And I click on "[data-action='insert'][data-value='1']" "css_element"
+    And I click on "[data-action='insert'][data-value='0']" "css_element"
+    And I click on "[data-action='insert'][data-value='0']" "css_element"
+    And the field "Calculator display" matches value "log(100)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "2"
+    # An operator builds on the filled-in answer.
+    And I press "Square root"
+    And I press "Multiply"
+    And I press "3"
+    And the field "Calculator display" matches value "√(2)*3"
+    # pH to [H+]: answer 4.2, then 10ˣ and +/− gives 10^(-4.2).
+    And I press "CLR"
+    And I set the field "Calculator display" to "4.2"
+    And I press "Equals"
+    And I press "Ten to the power of"
+    And the field "Calculator display" matches value "10^(4.2)"
+    And I press "Change sign"
+    And the field "Calculator display" matches value "10^(-4.2)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "0.0000630957344480193"
+    # After 10ˣ, a minus starts a new negative exponent.
+    And I press "Ten to the power of"
+    And I press "Minus"
+    And I press "4"
+    And the field "Calculator display" matches value "10⁻⁴"
+    # With nothing calculated yet, function keys work as before.
+    And I press "CLR"
+    And I press "Logarithm base 10"
+    And the field "Calculator display" matches value "log()"
+
   Scenario: Invalid expressions show an explanation
     Given I am on the "Course 1" course page logged in as student1
     And I click on "Calculator" "button"
