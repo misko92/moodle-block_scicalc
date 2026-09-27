@@ -222,7 +222,6 @@ describe('+/− flips the sign of the term at the cursor', () => {
         // Numbers.
         ['12|', '-12|'],
         ['-12|', '12|'],
-        ['1.2E-7|', '-1.2E-7|'],
         ['3+5|', '3-5|'],
         ['3-5|', '3+5|'],
         ['3*5|', '3*-5|'],
@@ -230,6 +229,16 @@ describe('+/− flips the sign of the term at the cursor', () => {
         ['(3+5|)', '(3-5|)'],
         ['(3+5)|', '-(3+5)|'],
         ['pi|', '-pi|'],
+        // E-notation exponents (EE then +/−).
+        ['log(1E|)', 'log(1E-|)'],
+        ['log(1E-|)', 'log(1E|)'],
+        ['log(1E6|)', 'log(1E-6|)'],
+        ['log(1E-6|)', 'log(1E6|)'],
+        ['1E+6|', '1E-6|'],
+        ['6.02E23|', '6.02E-23|'],
+        ['2.E|', '2.E-|'],
+        ['log(1E-6)|', '-log(1E-6)|'],
+        ['2*e|', '2*-e|'],
         // Superscript exponents.
         ['10⁴|', '10⁻⁴|'],
         ['10⁻⁴|', '10⁴|'],
@@ -239,6 +248,16 @@ describe('+/− flips the sign of the term at the cursor', () => {
     ])('%s → %s', (before, after) => {
         const state = toggleSign(at(before));
         expect(state.value.slice(0, state.start) + '|' + state.value.slice(state.end)).toBe(after);
+    });
+
+    test('typing log, 1, EE, +/−, 6 gives log(1E-6)', () => {
+        let state = type(empty, 'log()', 1);
+        state = type(state, '1');
+        state = type(state, 'E');
+        state = toggleSign(state);
+        state = type(state, '6');
+        expect(shown(state)).toBe('log(1E-6|)');
+        expect(formatResult(evaluate(state.value))).toBe('-6');
     });
 
     test('pH = −log[H+]', () => {

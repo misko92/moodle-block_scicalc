@@ -143,6 +143,22 @@ Feature: Scientific calculator popup
     Then the field "Calculator display" matches value "-log(.0002)"
     And I press "Equals"
     And the field "Calculator display" matches value "3.69897000433602"
+    # EE then +/- makes the exponent negative.
+    And I press "CLR"
+    And I press "Logarithm base 10"
+    And I click on "[data-action='insert'][data-value='1']" "css_element"
+    And I press "Times ten to the power of"
+    And I press "Change sign"
+    And I click on "[data-action='insert'][data-value='6']" "css_element"
+    And the field "Calculator display" matches value "log(1E-6)"
+    And I press "Equals"
+    And the field "Calculator display" matches value "-6"
+    # On an answer, +/- negates the whole answer, not its exponent.
+    And I set the field "Calculator display" to "1.2E-7*1"
+    And I press "Equals"
+    And the field "Calculator display" matches value "1.2E-7"
+    And I press "Change sign"
+    And the field "Calculator display" matches value "-1.2E-7"
     # Filled-in answer: LOG then +/- also puts the minus outside.
     And I set the field "Calculator display" to "2.5E-4"
     And I press "Equals"

@@ -21,7 +21,9 @@ EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
   `log(0.002)`); an operator builds on it; after **10ˣ**/**eˣ**, **+/−** flips its sign
   and **−** starts a new negative exponent.
 - **+/−** flips the sign of the term at the cursor: a number (`3+5` ↔ `3−5`) or a whole
-  function, with the minus outside it (`log(.0002)` → `−log(.0002)`, for pH).
+  function, with the minus outside it (`log(.0002)` → `−log(.0002)`, for pH). In an
+  exponent it flips the exponent, as on a scientific calculator: **EE** then **+/−**
+  gives `1E−6`. On an answer it negates the whole answer.
 - A negative number raised to a power is bracketed as it's typed: −3 then x² shows
   `(−3)²` = 9, which is what students almost always mean. A minus that subtracts is
   left alone (`5−3²` = −4). Otherwise expressions follow normal maths precedence.

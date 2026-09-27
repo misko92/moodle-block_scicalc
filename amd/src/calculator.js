@@ -246,8 +246,21 @@ export const init = (root, historyKey) => {
         }
     };
 
-    // After a bare ^ the minus belongs to the exponent (⁻); otherwise flip the term at the cursor.
-    const negate = () => setState(pending ? type(getState(), '-') : toggleSign(getState()));
+    /**
+     * The +/− key. On an answer it negates the answer (1.2E-7 → -1.2E-7, not its exponent);
+     * after a bare ^ the minus belongs to the exponent (⁻); otherwise it flips the term at
+     * the cursor.
+     *
+     * @param {boolean} onResult Whether the display is showing an answer.
+     */
+    const negate = (onResult) => {
+        const value = display.value.trim();
+        if (onResult) {
+            setValue(value.startsWith('-') ? value.slice(1) : '-' + value);
+        } else {
+            setState(pending ? type(getState(), '-') : toggleSign(getState()));
+        }
+    };
 
     root.querySelector('.scicalc-grid').addEventListener('click', (ev) => {
         const btn = ev.target.closest('[data-action]');
@@ -300,7 +313,7 @@ export const init = (root, historyKey) => {
                 }
                 break;
             case 'negate':
-                negate();
+                negate(wasResult);
                 // A negated result is still a result: the next digit starts a new calculation.
                 showingResult = wasResult;
                 break;

@@ -279,8 +279,9 @@ const termStart = (value, pos) => {
 /**
  * The +/− key: flip the sign of the term at the cursor. A sign minus is removed or added
  * (log(x) ↔ −log(x)), and a subtraction becomes an addition and back (5−log(2) ↔ 5+log(2)).
- * Right after a superscript exponent it flips the exponent (10⁻⁴ ↔ 10⁴). With no term to
- * flip, it starts a negative number.
+ * In an exponent it flips the exponent instead, as on a scientific calculator: after EE
+ * (1E ↔ 1E−, 1E6 ↔ 1E−6) or a superscript (10⁻⁴ ↔ 10⁴). With no term to flip, it starts
+ * a negative number.
  *
  * @param {Object} state
  * @returns {Object}
@@ -296,6 +297,13 @@ export const toggleSign = (state) => {
             pending: false,
         };
     };
+
+    // In an E-notation exponent (typed with EE): flip the exponent's sign.
+    const exponent = /(?:\d|\.)[eE]([+-]?)(\d*)$/.exec(value.slice(0, pos));
+    if (exponent) {
+        const at = pos - exponent[2].length - exponent[1].length;
+        return exponent[1] ? edit(at, 1, exponent[1] === '-' ? '' : '-') : edit(at, 0, '-');
+    }
 
     if (isSuperscript(value[pos - 1])) {
         let from = pos;
