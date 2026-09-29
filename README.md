@@ -1,13 +1,14 @@
 # Scientific Calculator block (block_scicalc)
 
-A Moodle block that adds a floating, draggable scientific calculator to any page,
-including quiz attempts. The layout is aimed at chemistry: LOG, LN, 10ˣ, eˣ,
+A Moodle block that adds a floating, draggable scientific calculator to quiz
+attempts. The layout is aimed at chemistry: LOG, LN, 10ˣ, eˣ,
 EE (scientific notation), √, ⁿ√, x², 1/x, |x| and ANS.
 
-- The block itself is invisible to students; it adds a **Calculator** button below
-  the navbar. Teachers see a short note in the block while editing.
+- The block itself is invisible to students and doesn't put the calculator on the
+  course page. Teachers see a short note in the block while editing.
 - **Quizzes:** add the block to a course once and every quiz attempt in that course
-  gets the calculator — even with "Show blocks during quiz attempts" off. Each quiz
+  gets a **Calculator** button below the navbar — even with "Show blocks during quiz
+  attempts" off. It appears on quiz attempt pages only. Each quiz
   has a **Show calculator during attempts** checkbox (under *Scientific Calculator*
   in its settings) to turn it off for no-calculator tests. That setting isn't
   included in course backups, so it resets to "on" after a restore or duplicate.

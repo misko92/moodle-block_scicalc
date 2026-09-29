@@ -30,8 +30,8 @@ class hook_callbacks {
     /**
      * Show the calculator during quiz attempts in courses that have the block.
      *
-     * Quizzes hide blocks during attempts unless "Show blocks during quiz attempts" is on,
-     * which would also stop the block from loading the calculator. This loads it anyway.
+     * This is the only place the calculator is loaded: the block doesn't load it on the
+     * pages it sits on, and this works whether or not the quiz shows blocks during attempts.
      *
      * @param before_footer_html_generation $hook
      */

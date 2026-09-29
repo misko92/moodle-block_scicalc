@@ -22,15 +22,12 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_scicalc\local\loader;
-
 /**
  * Scientific Calculator block.
  *
- * The block itself shows nothing to students: it loads a floating calculator
- * (block_scicalc/popup) onto the page. While editing, it shows a short note so
- * teachers can still find, move and delete it. Quiz attempts in a course with this
- * block get the calculator too (see \block_scicalc\hook_callbacks).
+ * The block itself shows nothing to students: it marks the course (or activity)
+ * whose quiz attempts get the floating calculator (see \block_scicalc\hook_callbacks).
+ * While editing, it shows a short note so teachers can still find, move and delete it.
  */
 class block_scicalc extends block_base {
     /**
@@ -59,9 +56,10 @@ class block_scicalc extends block_base {
     }
 
     /**
-     * Load the calculator and return the (normally empty) block content.
+     * Return the (normally empty) block content.
      *
      * Empty content keeps the block out of the page for everyone who isn't editing.
+     * The calculator itself is only loaded on quiz attempt pages, by the hook callback.
      *
      * @return stdClass|null
      */
@@ -69,8 +67,6 @@ class block_scicalc extends block_base {
         if ($this->content !== null) {
             return $this->content;
         }
-
-        loader::require_calculator($this->page);
 
         $this->content = new stdClass();
         $this->content->text = $this->page->user_is_editing() ? get_string('editinghint', 'block_scicalc') : '';
