@@ -1,3 +1,6 @@
 /node_modules
 /phpunit.xml
 /tests/phpunit.xml
+phpunit.xml
+tests/phpunit.xml
+node_modules/
