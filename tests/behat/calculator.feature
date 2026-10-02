@@ -219,4 +219,3 @@ Feature: Scientific calculator popup
     And "Calculator" "button" should not exist
     When I turn editing mode on
     Then I should see "Students get a floating Calculator button"
-
