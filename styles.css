@@ -5,14 +5,14 @@
     top: calc(var(--navbar-height, 60px) + 12px);
     right: 24px;
     z-index: 9990;
-    background: #111111;
+    background: #111;
     color: #fff;
     border: none;
     border-radius: 24px;
     padding: 10px 18px;
     font-size: 0.95rem;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     cursor: pointer;
     transition: background 0.15s, box-shadow 0.15s;
 }
@@ -27,7 +27,7 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
 #scicalc-toggle-btn:hover,
 #scicalc-toggle-btn:focus-visible {
     background: #2a2a2a;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
     outline: 2px solid #ff8c00;
 }
 
@@ -39,7 +39,7 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     background: #f8f9fa;
     border: 1px solid #bbb;
     border-radius: 10px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
 }
 
 /* Drag handle */
@@ -47,7 +47,7 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #111111;
+    background: #111;
     color: #fff;
     padding: 9px 12px;
     border-radius: 9px 9px 0 0;
@@ -56,7 +56,9 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     font-weight: 600;
     font-size: 0.88rem;
 }
-#scicalc-drag-handle:active { cursor: grabbing; }
+#scicalc-drag-handle:active {
+    cursor: grabbing;
+}
 
 #scicalc-close-btn {
     background: transparent;
@@ -68,7 +70,9 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     cursor: pointer;
     opacity: 0.8;
 }
-#scicalc-close-btn:hover { opacity: 1; }
+#scicalc-close-btn:hover {
+    opacity: 1;
+}
 
 /* Popup body */
 #scicalc-popup-body {
@@ -146,7 +150,7 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     font-weight: 500;
     cursor: pointer;
     line-height: 1;
-    transition: filter 0.1s, transform 0.08s;
+    transition: filter 0.1s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
@@ -156,19 +160,54 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
 }
 
 /* Colour variants */
-.scicalc-btn-num  { background: #fff;    color: #212529; border: 1px solid #dee2e6; }
-.scicalc-btn-op   { background: #e9ecef; color: #212529; }
-.scicalc-btn-func { background: #ffe8cc; color: #7a3800; font-weight: 600; }
-.scicalc-btn-warning { background: #fff3cd; color: #664d03; font-weight: 600; }
-.scicalc-btn-danger  { background: #f8d7da; color: #842029; font-weight: 600; }
-.scicalc-btn-primary { background: #111111; color: #fff; font-weight: 700; }
+.scicalc-btn-num {
+    background: #fff;
+    color: #212529;
+    border: 1px solid #dee2e6;
+}
+.scicalc-btn-op {
+    background: #e9ecef;
+    color: #212529;
+}
+.scicalc-btn-func {
+    background: #ffe8cc;
+    color: #7a3800;
+    font-weight: 600;
+}
+.scicalc-btn-warning {
+    background: #fff3cd;
+    color: #664d03;
+    font-weight: 600;
+}
+.scicalc-btn-danger {
+    background: #f8d7da;
+    color: #842029;
+    font-weight: 600;
+}
+.scicalc-btn-primary {
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+}
 
-.scicalc-btn-num:hover  { background: #f1f3f5; }
-.scicalc-btn-op:hover   { background: #dee2e6; }
-.scicalc-btn-func:hover { background: #ffd4a3; }
-.scicalc-btn-warning:hover { background: #ffe69c; }
-.scicalc-btn-danger:hover  { background: #f1aeb5; }
-.scicalc-btn-primary:hover { background: #2a2a2a; }
+.scicalc-btn-num:hover {
+    background: #f1f3f5;
+}
+.scicalc-btn-op:hover {
+    background: #dee2e6;
+}
+.scicalc-btn-func:hover {
+    background: #ffd4a3;
+}
+.scicalc-btn-warning:hover {
+    background: #ffe69c;
+}
+.scicalc-btn-danger:hover {
+    background: #f1aeb5;
+}
+.scicalc-btn-primary:hover {
+    background: #2a2a2a;
+}
 
 /* ── History ─────────────────────────────────────────────────────────── */
 .scicalc-history-header {
@@ -191,7 +230,9 @@ body:has(#page.show-drawer-right) #scicalc-toggle-btn {
     cursor: pointer;
     min-height: 36px;
 }
-.scicalc-clear-history:hover { background: #b02a37; }
+.scicalc-clear-history:hover {
+    background: #b02a37;
+}
 
 #scicalc-history {
     max-height: 110px;

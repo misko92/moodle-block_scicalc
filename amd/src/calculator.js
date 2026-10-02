@@ -262,6 +262,7 @@ export const init = (root, historyKey) => {
         }
     };
 
+    // eslint-disable-next-line complexity -- one dispatch over every calculator button.
     root.querySelector('.scicalc-grid').addEventListener('click', (ev) => {
         const btn = ev.target.closest('[data-action]');
         if (!btn) {

@@ -116,6 +116,7 @@ export const normalise = (input) => input
  * @param {string} input
  * @returns {Array<{type: string, value: string}>}
  */
+// eslint-disable-next-line complexity -- a hand-written tokenizer/parser: one branch per token type.
 export const tokenize = (input) => {
     const s = normalise(input);
     const tokens = [];
@@ -188,6 +189,7 @@ export const toRpn = (tokens) => {
     const top = () => stack[stack.length - 1];
     const isParen = (t) => t && t.value === '(';
 
+    // eslint-disable-next-line complexity -- a hand-written tokenizer/parser: one branch per token type.
     tokens.forEach((t, i) => {
         const next = tokens[i + 1];
 
